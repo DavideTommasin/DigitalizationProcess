@@ -88,6 +88,12 @@
       touch-action: none;
     }
 
+    #signature-img-temp {
+      margin-top: 10px;
+      max-width: 100%;
+      display: none;
+    }
+
     .button-row {
       display: flex;
       justify-content: flex-start;
@@ -135,7 +141,6 @@
 <body>
   <div id="modulo">
     <h1>Weighing Registration Form</h1>
-
     <div class="form-row-inline">
       <label for="utensile">Select tool:</label>
       <select id="utensile">
@@ -145,7 +150,6 @@
         <option>Tool 3</option>
       </select>
     </div>
-
     <div class="form-row-inline">
       <label for="container">Select container:</label>
       <select id="container">
@@ -155,7 +159,6 @@
         <option>Container 3</option>
       </select>
     </div>
-
     <div class="form-row-inline">
       <label for="batch">Select batch:</label>
       <select id="batch">
@@ -165,7 +168,6 @@
         <option>Batch 3</option>
       </select>
     </div>
-
     <div class="form-row-inline">
       <label for="bilancia">Selected scale:</label>
       <select id="bilancia" onchange="aggiornaSuggerimenti()">
@@ -175,46 +177,38 @@
         <option value="big">Big</option>
       </select>
     </div>
-
     <div class="form-row-block">
       <label for="tara">Scale tare (kg):</label>
       <input type="number" id="tara" step="0.01" placeholder="Enter value between...">
     </div>
-
     <div class="form-row-block">
       <label for="peso">Weighed weight (kg):</label>
       <input type="number" id="peso" step="0.01" oninput="calcolaNetto()" placeholder="Enter value between...">
     </div>
-
     <div class="form-row-block">
       <label for="netto">Net weight (kg):</label>
       <input type="number" id="netto" class="readonly" readonly>
     </div>
-
     <div class="form-row-block">
       <label for="codice">Fragment code:</label>
       <input type="text" id="codice">
     </div>
-
     <div class="form-row-block">
       <label for="firma">Operator signature:</label>
       <canvas id="signature-pad"></canvas>
+      <img id="signature-img-temp">
     </div>
-
     <div class="button-row">
       <button onclick="clearSignature()">Clear signature</button>
       <button onclick="generaPDF()">PDF</button>
     </div>
   </div>
-
 <script>
   function calcolaNetto() {
     const tara = parseFloat(document.getElementById('tara').value) || 0;
     const peso = parseFloat(document.getElementById('peso').value) || 0;
-    const netto = peso - tara;
-    document.getElementById('netto').value = netto.toFixed(2);
+    document.getElementById('netto').value = (peso - tara).toFixed(2);
   }
-
   function aggiornaSuggerimenti() {
     const bilancia = document.getElementById('bilancia').value;
     const taraInput = document.getElementById('tara');
@@ -230,34 +224,27 @@
       pesoInput.placeholder = '100kg - 500kg';
     }
   }
-
   function clearSignature() {
     const canvas = document.getElementById('signature-pad');
     const context = canvas.getContext('2d');
     context.clearRect(0, 0, canvas.width, canvas.height);
   }
-
   function generaPDF() {
-  const canvas = document.getElementById('signature-pad');
-  const signatureImage = document.createElement('img');
-  signatureImage.src = canvas.toDataURL();
-  signatureImage.id = "signature-img-temp";
-  signatureImage.style.maxWidth = "100%";
-  signatureImage.style.marginTop = "10px";
+    const canvas = document.getElementById('signature-pad');
+    const signatureImg = document.getElementById('signature-img-temp');
+    signatureImg.src = canvas.toDataURL();
+    signatureImg.style.display = 'block';
 
-  const container = document.getElementById('modulo');
-  container.appendChild(signatureImage);
     const element = document.getElementById('modulo');
     const opt = {
       margin: 0.5,
       filename: 'weighing_form.pdf',
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
+      html2canvas: { scale: 2, scrollY: 0 },
       jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
     };
     html2pdf().set(opt).from(element).save().then(() => {
-      const tempImg = document.getElementById("signature-img-temp");
-      if (tempImg) tempImg.remove();
+      signatureImg.style.display = 'none';
     });
   }
 
@@ -301,7 +288,6 @@
   canvas.addEventListener('mousemove', draw);
   canvas.addEventListener('mouseup', endDraw);
   canvas.addEventListener('mouseout', endDraw);
-
   canvas.addEventListener('touchstart', startDraw, { passive: false });
   canvas.addEventListener('touchmove', draw, { passive: false });
   canvas.addEventListener('touchend', endDraw);
