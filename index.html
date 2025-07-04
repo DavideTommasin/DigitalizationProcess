@@ -238,6 +238,15 @@
   }
 
   function generaPDF() {
+  const canvas = document.getElementById('signature-pad');
+  const signatureImage = document.createElement('img');
+  signatureImage.src = canvas.toDataURL();
+  signatureImage.id = "signature-img-temp";
+  signatureImage.style.maxWidth = "100%";
+  signatureImage.style.marginTop = "10px";
+
+  const container = document.getElementById('modulo');
+  container.appendChild(signatureImage);
     const element = document.getElementById('modulo');
     const opt = {
       margin: 0.5,
@@ -246,7 +255,10 @@
       html2canvas: { scale: 2, useCORS: true },
       jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
     };
-    html2pdf().set(opt).from(element).save();
+    html2pdf().set(opt).from(element).save().then(() => {
+      const tempImg = document.getElementById("signature-img-temp");
+      if (tempImg) tempImg.remove();
+    });
   }
 
   const canvas = document.getElementById('signature-pad');
