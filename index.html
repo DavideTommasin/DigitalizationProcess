@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modulo di Registrazione Pesatura</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+      max-width: 700px;
+      margin: auto;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    .form-row-inline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 15px;
+    }
+    .form-row-inline label {
+      font-weight: bold;
+      width: 45%;
+    }
+    .form-row-inline select {
+      width: 50%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background-color: white;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 16px 16px;
+    }
+    .form-row-block {
+      margin-top: 15px;
+      display: flex;
+      flex-direction: column;
+    }
+    .form-row-block label {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .form-row-block input[type="text"],
+    .form-row-block input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+    .readonly {
+      background-color: #eee;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #signature-pad {
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background-color: white;
+      margin-top: 10px;
+      width: 99%;
+    }
+  </style>
+</head>
+<body>
+<div id="modulo">
+  <h1>Modulo di Registrazione Pesatura</h1>
+
+  <div class="form-row-inline">
+    <label for="utensile">Scelta utensile:</label>
+    <select id="utensile">
+      <option value="">Seleziona utensile</option>
+      <option value="utensile_1">Utensile 1</option>
+      <option value="utensile_2">Utensile 2</option>
+      <option value="utensile_3">Utensile 3</option>
+    </select>
+  </div>
+
+  <div class="form-row-inline">
+    <label for="container">Scelta container:</label>
+    <select id="container">
+      <option value="">Seleziona container</option>
+      <option value="container_1">Container 1</option>
+      <option value="container_2">Container 2</option>
+      <option value="container_3">Container 3</option>
+    </select>
+  </div>
+
+  <div class="form-row-inline">
+    <label for="batch">Scelta batch:</label>
+    <select id="batch">
+      <option value="">Seleziona batch</option>
+      <option value="batch_1">Batch 1</option>
+      <option value="batch_2">Batch 2</option>
+      <option value="batch_3">Batch 3</option>
+    </select>
+  </div>
+
+  <div class="form-row-inline">
+    <label for="bilancia">Bilancia utilizzata:</label>
+    <select id="bilancia" onchange="aggiornaSuggerimenti()">
+      <option value="">Seleziona bilancia</option>
+      <option value="small">Small</option>
+      <option value="medium">Medium</option>
+      <option value="big">Big</option>
+    </select>
+  </div>
+
+  <div class="form-row-block">
+    <label for="tara">Tara bilancia (kg):</label>
+    <input type="number" id="tara" step="0.01" placeholder="Inserisci un valore tra...">
+  </div>
+
+  <div class="form-row-block">
+    <label for="peso">Peso pesato (kg):</label>
+    <input type="number" id="peso" step="0.01" oninput="calcolaNetto()" placeholder="Inserisci un valore tra...">
+  </div>
+
+  <div class="form-row-block">
+    <label for="netto">Peso netto (kg):</label>
+    <input type="number" id="netto" class="readonly" readonly>
+  </div>
+
+  <div class="form-row-block">
+    <label for="codice">Codice del fragment pesato:</label>
+    <input type="text" id="codice">
+  </div>
+
+  <div class="form-row-block">
+    <label for="firma">Firma operatore:</label>
+    <canvas id="signature-pad" height="150"></canvas>
+  </div>
+</div>
+
+  <button onclick="clearSignature()">Cancella firma</button>
+  <button onclick="generaPDF()">PDF</button>
+
+  <script>
+    function calcolaNetto() {
+      const tara = parseFloat(document.getElementById('tara').value) || 0;
+      const peso = parseFloat(document.getElementById('peso').value) || 0;
+      const netto = peso - tara;
+      document.getElementById('netto').value = netto.toFixed(2);
+    }
+
+    function aggiornaSuggerimenti() {
+      const bilancia = document.getElementById('bilancia').value;
+      const taraInput = document.getElementById('tara');
+      const pesoInput = document.getElementById('peso');
+      if (bilancia === 'small') {
+        taraInput.placeholder = '1kg - 5kg';
+        pesoInput.placeholder = '1kg - 5kg';
+      } else if (bilancia === 'medium') {
+        taraInput.placeholder = '5kg - 50kg';
+        pesoInput.placeholder = '5kg - 50kg';
+      } else if (bilancia === 'big') {
+        taraInput.placeholder = '100kg - 500kg';
+        pesoInput.placeholder = '100kg - 500kg';
+      }
+    }
+
+    function clearSignature() {
+      const canvas = document.getElementById('signature-pad');
+      const context = canvas.getContext('2d');
+      context.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function generaPDF() {
+      const element = document.getElementById('modulo');
+
+      const opt = {
+        margin:       0.5,
+        filename:     'modulo_pesatura.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(element).save();
+    }
+
+    const canvas = document.getElementById('signature-pad');
+    const ctx = canvas.getContext('2d');
+    let isDrawing = false;
+
+    canvas.addEventListener('mousedown', () => isDrawing = true);
+    canvas.addEventListener('mouseup', () => isDrawing = false);
+    canvas.addEventListener('mouseout', () => isDrawing = false);
+    canvas.addEventListener('mousemove', draw);
+
+    function draw(e) {
+      if (!isDrawing) return;
+      const rect = canvas.getBoundingClientRect();
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+      ctx.strokeStyle = '#000';
+      ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+    }
+  </script>
+</body>
+</html>
