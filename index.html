@@ -1,16 +1,17 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Weighing Registration Form</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
       background: #f4f4f4;
-      padding: 20px;
       margin: 0;
+      padding: 20px;
     }
 
     #modulo {
@@ -46,11 +47,6 @@
       border-radius: 6px;
       font-size: 16px;
       background-color: white;
-      appearance: none;
-      background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-      background-repeat: no-repeat;
-      background-position: right 10px center;
-      background-size: 16px 16px;
     }
 
     .form-row-block {
@@ -70,7 +66,6 @@
       padding: 10px;
       border: 1px solid #ccc;
       border-radius: 6px;
-      box-sizing: border-box;
       font-size: 16px;
     }
 
@@ -88,23 +83,26 @@
       touch-action: none;
     }
 
+    #signature-img {
+      display: none;
+    }
+
     .button-row {
       display: flex;
-      justify-content: flex-start;
       gap: 10px;
       margin-top: 20px;
       flex-wrap: wrap;
     }
 
     .button-row button {
-      flex: 1 1 auto;
+      flex: 1;
       padding: 12px 20px;
       background-color: #007BFF;
       color: white;
       border: none;
       border-radius: 6px;
-      cursor: pointer;
       font-size: 16px;
+      cursor: pointer;
     }
 
     .button-row button:hover {
@@ -133,166 +131,146 @@
   </style>
 </head>
 <body>
-  <div id="modulo">
-    <h1>Weighing Registration Form</h1>
+<div id="modulo">
+  <h1>Weighing Registration Form</h1>
 
-    <div class="form-row-inline">
-      <label for="utensile">Select tool:</label>
-      <select id="utensile">
-        <option value="">Select tool</option>
-        <option>Tool 1</option>
-        <option>Tool 2</option>
-        <option>Tool 3</option>
-      </select>
-    </div>
-
-    <div class="form-row-inline">
-      <label for="container">Select container:</label>
-      <select id="container">
-        <option value="">Select container</option>
-        <option>Container 1</option>
-        <option>Container 2</option>
-        <option>Container 3</option>
-      </select>
-    </div>
-
-    <div class="form-row-inline">
-      <label for="batch">Select batch:</label>
-      <select id="batch">
-        <option value="">Select batch</option>
-        <option>Batch 1</option>
-        <option>Batch 2</option>
-        <option>Batch 3</option>
-      </select>
-    </div>
-
-    <div class="form-row-inline">
-      <label for="bilancia">Selected scale:</label>
-      <select id="bilancia" onchange="aggiornaSuggerimenti()">
-        <option value="">Select scale</option>
-        <option value="small">Small</option>
-        <option value="medium">Medium</option>
-        <option value="big">Big</option>
-      </select>
-    </div>
-
-    <div class="form-row-block">
-      <label for="tara">Scale tare (kg):</label>
-      <input type="number" id="tara" step="0.01" placeholder="Enter value between...">
-    </div>
-
-    <div class="form-row-block">
-      <label for="peso">Weighed weight (kg):</label>
-      <input type="number" id="peso" step="0.01" oninput="calcolaNetto()" placeholder="Enter value between...">
-    </div>
-
-    <div class="form-row-block">
-      <label for="netto">Net weight (kg):</label>
-      <input type="number" id="netto" class="readonly" readonly>
-    </div>
-
-    <div class="form-row-block">
-      <label for="codice">Fragment code:</label>
-      <input type="text" id="codice">
-    </div>
-
-    <div class="form-row-block">
-      <label for="firma">Operator signature:</label>
-      <canvas id="signature-pad"></canvas>
-    </div>
-
-    <div class="button-row">
-      <button onclick="clearSignature()">Clear signature</button>
-      <button onclick="generaPDF()">PDF</button>
-    </div>
+  <div class="form-row-inline">
+    <label>Select tool:</label>
+    <select>
+      <option>Select tool</option><option>Tool 1</option><option>Tool 2</option><option>Tool 3</option>
+    </select>
   </div>
 
-<script>
-  function calcolaNetto() {
-    const tara = parseFloat(document.getElementById('tara').value) || 0;
-    const peso = parseFloat(document.getElementById('peso').value) || 0;
-    const netto = peso - tara;
-    document.getElementById('netto').value = netto.toFixed(2);
-  }
+  <div class="form-row-inline">
+    <label>Select container:</label>
+    <select>
+      <option>Select container</option><option>Container 1</option><option>Container 2</option><option>Container 3</option>
+    </select>
+  </div>
 
-  function aggiornaSuggerimenti() {
-    const bilancia = document.getElementById('bilancia').value;
-    const taraInput = document.getElementById('tara');
-    const pesoInput = document.getElementById('peso');
-    if (bilancia === 'small') {
-      taraInput.placeholder = '1kg - 5kg';
-      pesoInput.placeholder = '1kg - 5kg';
-    } else if (bilancia === 'medium') {
-      taraInput.placeholder = '5kg - 50kg';
-      pesoInput.placeholder = '5kg - 50kg';
-    } else if (bilancia === 'big') {
-      taraInput.placeholder = '100kg - 500kg';
-      pesoInput.placeholder = '100kg - 500kg';
+  <div class="form-row-inline">
+    <label>Select batch:</label>
+    <select>
+      <option>Select batch</option><option>Batch 1</option><option>Batch 2</option><option>Batch 3</option>
+    </select>
+  </div>
+
+  <div class="form-row-inline">
+    <label>Selected scale:</label>
+    <select id="scale" onchange="updatePlaceholder()">
+      <option>Select scale</option><option value="small">Small</option><option value="medium">Medium</option><option value="big">Big</option>
+    </select>
+  </div>
+
+  <div class="form-row-block">
+    <label>Scale tare (kg):</label>
+    <input type="number" id="tara" placeholder="Enter value between..." step="0.01">
+  </div>
+
+  <div class="form-row-block">
+    <label>Weighed weight (kg):</label>
+    <input type="number" id="peso" placeholder="Enter value between..." step="0.01" oninput="calculateNet()">
+  </div>
+
+  <div class="form-row-block">
+    <label>Net weight (kg):</label>
+    <input type="number" id="netto" class="readonly" readonly>
+  </div>
+
+  <div class="form-row-block">
+    <label>Fragment code:</label>
+    <input type="text">
+  </div>
+
+  <div class="form-row-block">
+    <label>Operator signature:</label>
+    <canvas id="signature-pad"></canvas>
+    <img id="signature-img" />
+  </div>
+
+  <div class="button-row">
+    <button onclick="clearSignature()">Clear signature</button>
+    <button onclick="generatePDF()">PDF</button>
+  </div>
+</div>
+
+<script>
+  function updatePlaceholder() {
+    const val = document.getElementById('scale').value;
+    const t = document.getElementById('tara');
+    const p = document.getElementById('peso');
+    if (val === 'small') {
+      t.placeholder = '1kg - 5kg'; p.placeholder = '1kg - 5kg';
+    } else if (val === 'medium') {
+      t.placeholder = '5kg - 50kg'; p.placeholder = '5kg - 50kg';
+    } else if (val === 'big') {
+      t.placeholder = '100kg - 500kg'; p.placeholder = '100kg - 500kg';
+    } else {
+      t.placeholder = p.placeholder = 'Enter value between...';
     }
   }
 
-  function clearSignature() {
-    const canvas = document.getElementById('signature-pad');
-    const context = canvas.getContext('2d');
-    context.clearRect(0, 0, canvas.width, canvas.height);
-  }
-
-  function generaPDF() {
-    const element = document.getElementById('modulo');
-    const opt = {
-      margin: 0.5,
-      filename: 'weighing_form.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-    };
-    html2pdf().set(opt).from(element).save();
+  function calculateNet() {
+    const tara = parseFloat(document.getElementById('tara').value) || 0;
+    const peso = parseFloat(document.getElementById('peso').value) || 0;
+    document.getElementById('netto').value = (peso - tara).toFixed(2);
   }
 
   const canvas = document.getElementById('signature-pad');
   const ctx = canvas.getContext('2d');
-  let isDrawing = false;
+  let drawing = false;
 
-  function getPos(e) {
-    const rect = canvas.getBoundingClientRect();
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    return { x: clientX - rect.left, y: clientY - rect.top };
-  }
-
-  function startDraw(e) {
-    isDrawing = true;
-    const pos = getPos(e);
+  canvas.addEventListener('mousedown', e => {
+    drawing = true;
     ctx.beginPath();
-    ctx.moveTo(pos.x, pos.y);
-    e.preventDefault();
-  }
-
-  function draw(e) {
-    if (!isDrawing) return;
-    const pos = getPos(e);
-    ctx.lineTo(pos.x, pos.y);
-    ctx.strokeStyle = '#000';
-    ctx.lineWidth = 2;
-    ctx.lineCap = 'round';
+    ctx.moveTo(e.offsetX, e.offsetY);
+  });
+  canvas.addEventListener('mousemove', e => {
+    if (!drawing) return;
+    ctx.lineTo(e.offsetX, e.offsetY);
     ctx.stroke();
-    e.preventDefault();
-  }
+  });
+  canvas.addEventListener('mouseup', () => drawing = false);
+  canvas.addEventListener('mouseout', () => drawing = false);
 
-  function endDraw(e) {
-    isDrawing = false;
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    drawing = true;
+    const t = e.touches[0];
+    const rect = canvas.getBoundingClientRect();
     ctx.beginPath();
+    ctx.moveTo(t.clientX - rect.left, t.clientY - rect.top);
+  }, { passive: false });
+
+  canvas.addEventListener('touchmove', e => {
+    if (!drawing) return;
     e.preventDefault();
+    const t = e.touches[0];
+    const rect = canvas.getBoundingClientRect();
+    ctx.lineTo(t.clientX - rect.left, t.clientY - rect.top);
+    ctx.stroke();
+  }, { passive: false });
+
+  canvas.addEventListener('touchend', () => drawing = false);
+
+  function clearSignature() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
 
-  canvas.addEventListener('mousedown', startDraw);
-  canvas.addEventListener('mousemove', draw);
-  canvas.addEventListener('mouseup', endDraw);
-  canvas.addEventListener('mouseout', endDraw);
+  function generatePDF() {
+    const signatureImage = document.getElementById('signature-img');
+    signatureImage.src = canvas.toDataURL();
+    signatureImage.style.display = 'block';
 
-  canvas.addEventListener('touchstart', startDraw, { passive: false });
-  canvas.addEventListener('touchmove', draw, { passive: false });
-  canvas.addEventListener('touchend', endDraw);
+    html2pdf().set({
+      margin: 0.5,
+      filename: 'weighing_form.pdf',
+      html2canvas: { scale: 2, scrollY: 0 },
+      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+    }).from(document.getElementById('modulo')).save().then(() => {
+      signatureImage.style.display = 'none';
+    });
+  }
 </script>
 </body>
 </html>
