@@ -1,8 +1,9 @@
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
   <title>Modulo di Registrazione Pesatura</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
@@ -19,16 +20,16 @@
     }
     .form-row-inline {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
       margin-top: 15px;
     }
     .form-row-inline label {
       font-weight: bold;
-      width: 45%;
+      flex: 1 1 100%;
     }
     .form-row-inline select {
-      width: 50%;
+      flex: 1 1 100%;
       padding: 10px;
       border: 1px solid #ccc;
       border-radius: 6px;
@@ -64,6 +65,7 @@
     button {
       margin-top: 20px;
       padding: 10px 20px;
+      width: 100%;
       background-color: #007BFF;
       color: white;
       border: none;
@@ -78,7 +80,9 @@
       border-radius: 6px;
       background-color: white;
       margin-top: 10px;
-      width: 99%;
+      width: 100%;
+      height: 150px;
+      touch-action: none;
     }
   </style>
 </head>
@@ -148,7 +152,7 @@
 
   <div class="form-row-block">
     <label for="firma">Firma operatore:</label>
-    <canvas id="signature-pad" height="150"></canvas>
+    <canvas id="signature-pad"></canvas>
   </div>
 </div>
 
@@ -185,40 +189,60 @@
       context.clearRect(0, 0, canvas.width, canvas.height);
     }
 
-    function generaPDF() {
-      const element = document.getElementById('modulo');
-
-      const opt = {
-        margin:       0.5,
-        filename:     'modulo_pesatura.pdf',
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true },
-        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-      };
-
-      html2pdf().set(opt).from(element).save();
-    }
-
     const canvas = document.getElementById('signature-pad');
     const ctx = canvas.getContext('2d');
     let isDrawing = false;
 
-    canvas.addEventListener('mousedown', () => isDrawing = true);
-    canvas.addEventListener('mouseup', () => isDrawing = false);
-    canvas.addEventListener('mouseout', () => isDrawing = false);
-    canvas.addEventListener('mousemove', draw);
+    function getTouchPos(e) {
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      return {
+        x: touch.clientX - rect.left,
+        y: touch.clientY - rect.top
+      };
+    }
+
+    function startDrawing(e) {
+      isDrawing = true;
+      const pos = e.touches ? getTouchPos(e) : getMousePos(e);
+      ctx.beginPath();
+      ctx.moveTo(pos.x, pos.y);
+      e.preventDefault();
+    }
 
     function draw(e) {
       if (!isDrawing) return;
-      const rect = canvas.getBoundingClientRect();
+      const pos = e.touches ? getTouchPos(e) : getMousePos(e);
+      ctx.lineTo(pos.x, pos.y);
+      ctx.strokeStyle = '#000';
       ctx.lineWidth = 2;
       ctx.lineCap = 'round';
-      ctx.strokeStyle = '#000';
-      ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
       ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+      e.preventDefault();
     }
+
+    function endDrawing(e) {
+      isDrawing = false;
+      ctx.beginPath();
+      e.preventDefault();
+    }
+
+    function getMousePos(e) {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+      };
+    }
+
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', endDrawing);
+    canvas.addEventListener('mouseout', endDrawing);
+
+    canvas.addEventListener('touchstart', startDrawing, { passive: false });
+    canvas.addEventListener('touchmove', draw, { passive: false });
+    canvas.addEventListener('touchend', endDrawing);
   </script>
 </body>
 </html>
