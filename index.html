@@ -1,37 +1,50 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
-  <title>Modulo di Registrazione Pesatura</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weighing Registration Form</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
       background: #f4f4f4;
       padding: 20px;
-      max-width: 700px;
-      margin: auto;
+      margin: 0;
     }
+
+    #modulo {
+      max-width: 768px;
+      margin: auto;
+      background: #f4f4f4;
+    }
+
     h1 {
       text-align: center;
       color: #333;
     }
+
     .form-row-inline {
       display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
+      justify-content: space-between;
+      align-items: center;
       margin-top: 15px;
+      gap: 20px;
+      flex-wrap: wrap;
     }
+
     .form-row-inline label {
+      flex: 1;
       font-weight: bold;
-      flex: 1 1 100%;
+      min-width: 180px;
     }
+
     .form-row-inline select {
-      flex: 1 1 100%;
+      flex: 2;
       padding: 10px;
       border: 1px solid #ccc;
       border-radius: 6px;
+      font-size: 16px;
       background-color: white;
       appearance: none;
       background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
@@ -39,15 +52,18 @@
       background-position: right 10px center;
       background-size: 16px 16px;
     }
+
     .form-row-block {
       margin-top: 15px;
       display: flex;
       flex-direction: column;
     }
+
     .form-row-block label {
       font-weight: bold;
       margin-bottom: 5px;
     }
+
     .form-row-block input[type="text"],
     .form-row-block input[type="number"] {
       width: 100%;
@@ -55,106 +71,141 @@
       border: 1px solid #ccc;
       border-radius: 6px;
       box-sizing: border-box;
+      font-size: 16px;
     }
+
     .readonly {
       background-color: #eee;
     }
-    button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      width: 100%;
-      background-color: #007BFF;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
+
     #signature-pad {
       border: 1px solid #ccc;
       border-radius: 6px;
       background-color: white;
       margin-top: 10px;
       width: 100%;
-      height: 150px;
+      height: 200px;
       touch-action: none;
+    }
+
+    .button-row {
+      display: flex;
+      justify-content: flex-start;
+      gap: 10px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .button-row button {
+      flex: 1 1 auto;
+      padding: 12px 20px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .button-row button:hover {
+      background-color: #0056b3;
+    }
+
+    @media (max-width: 600px) {
+      .form-row-inline {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .form-row-inline label {
+        min-width: unset;
+        width: 100%;
+      }
+
+      .form-row-inline select {
+        width: 100%;
+      }
+
+      .button-row {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
 <body>
-<div id="modulo">
-  <h1>Modulo di Registrazione Pesatura</h1>
+  <div id="modulo">
+    <h1>Weighing Registration Form</h1>
 
-  <div class="form-row-inline">
-    <label for="utensile">Scelta utensile:</label>
-    <select id="utensile">
-      <option value="">Seleziona utensile</option>
-      <option value="utensile_1">Utensile 1</option>
-      <option value="utensile_2">Utensile 2</option>
-      <option value="utensile_3">Utensile 3</option>
-    </select>
+    <div class="form-row-inline">
+      <label for="utensile">Select tool:</label>
+      <select id="utensile">
+        <option value="">Select tool</option>
+        <option>Tool 1</option>
+        <option>Tool 2</option>
+        <option>Tool 3</option>
+      </select>
+    </div>
+
+    <div class="form-row-inline">
+      <label for="container">Select container:</label>
+      <select id="container">
+        <option value="">Select container</option>
+        <option>Container 1</option>
+        <option>Container 2</option>
+        <option>Container 3</option>
+      </select>
+    </div>
+
+    <div class="form-row-inline">
+      <label for="batch">Select batch:</label>
+      <select id="batch">
+        <option value="">Select batch</option>
+        <option>Batch 1</option>
+        <option>Batch 2</option>
+        <option>Batch 3</option>
+      </select>
+    </div>
+
+    <div class="form-row-inline">
+      <label for="bilancia">Selected scale:</label>
+      <select id="bilancia" onchange="aggiornaSuggerimenti()">
+        <option value="">Select scale</option>
+        <option value="small">Small</option>
+        <option value="medium">Medium</option>
+        <option value="big">Big</option>
+      </select>
+    </div>
+
+    <div class="form-row-block">
+      <label for="tara">Scale tare (kg):</label>
+      <input type="number" id="tara" step="0.01" placeholder="Enter value between...">
+    </div>
+
+    <div class="form-row-block">
+      <label for="peso">Weighed weight (kg):</label>
+      <input type="number" id="peso" step="0.01" oninput="calcolaNetto()" placeholder="Enter value between...">
+    </div>
+
+    <div class="form-row-block">
+      <label for="netto">Net weight (kg):</label>
+      <input type="number" id="netto" class="readonly" readonly>
+    </div>
+
+    <div class="form-row-block">
+      <label for="codice">Fragment code:</label>
+      <input type="text" id="codice">
+    </div>
+
+    <div class="form-row-block">
+      <label for="firma">Operator signature:</label>
+      <canvas id="signature-pad"></canvas>
+    </div>
+
+    <div class="button-row">
+      <button onclick="clearSignature()">Clear signature</button>
+      <button onclick="generaPDF()">PDF</button>
+    </div>
   </div>
-
-  <div class="form-row-inline">
-    <label for="container">Scelta container:</label>
-    <select id="container">
-      <option value="">Seleziona container</option>
-      <option value="container_1">Container 1</option>
-      <option value="container_2">Container 2</option>
-      <option value="container_3">Container 3</option>
-    </select>
-  </div>
-
-  <div class="form-row-inline">
-    <label for="batch">Scelta batch:</label>
-    <select id="batch">
-      <option value="">Seleziona batch</option>
-      <option value="batch_1">Batch 1</option>
-      <option value="batch_2">Batch 2</option>
-      <option value="batch_3">Batch 3</option>
-    </select>
-  </div>
-
-  <div class="form-row-inline">
-    <label for="bilancia">Bilancia utilizzata:</label>
-    <select id="bilancia" onchange="aggiornaSuggerimenti()">
-      <option value="">Seleziona bilancia</option>
-      <option value="small">Small</option>
-      <option value="medium">Medium</option>
-      <option value="big">Big</option>
-    </select>
-  </div>
-
-  <div class="form-row-block">
-    <label for="tara">Tara bilancia (kg):</label>
-    <input type="number" id="tara" step="0.01" placeholder="Inserisci un valore tra...">
-  </div>
-
-  <div class="form-row-block">
-    <label for="peso">Peso pesato (kg):</label>
-    <input type="number" id="peso" step="0.01" oninput="calcolaNetto()" placeholder="Inserisci un valore tra...">
-  </div>
-
-  <div class="form-row-block">
-    <label for="netto">Peso netto (kg):</label>
-    <input type="number" id="netto" class="readonly" readonly>
-  </div>
-
-  <div class="form-row-block">
-    <label for="codice">Codice del fragment pesato:</label>
-    <input type="text" id="codice">
-  </div>
-
-  <div class="form-row-block">
-    <label for="firma">Firma operatore:</label>
-    <canvas id="signature-pad"></canvas>
-  </div>
-</div>
-
-<button onclick="clearSignature()">Cancella firma</button>
-<button onclick="generaPDF()">PDF</button>
 
 <script>
   function calcolaNetto() {
@@ -190,7 +241,7 @@
     const element = document.getElementById('modulo');
     const opt = {
       margin: 0.5,
-      filename: 'modulo_pesatura.pdf',
+      filename: 'weighing_form.pdf',
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true },
       jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
